@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WrenchNear — Find Mechanics Near You</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <!-- NOISE OVERLAY -->
+  <div class="noise"></div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚙</span>
+        <span class="logo-text">Wrench<span class="accent">Near</span></span>
+      </div>
+      <nav class="nav-links">
+        <a href="#search-section">Find Mechanic</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="btn-nav-cta" onclick="triggerSearch()">Get Location</button>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero-bg-text">MECHANIC</div>
+    <div class="hero-content">
+      <div class="hero-tag">✦ GPS-POWERED SEARCH</div>
+      <h1 class="hero-title">
+        Find a Trusted<br/>
+        <span class="accent">Mechanic</span><br/>
+        Near You
+      </h1>
+      <p class="hero-subtitle">
+        Real-time mechanic discovery within your radius. <br/>
+        No fluff. Just the nearest hands-on experts.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="triggerSearch()" id="locate-btn">
+          <span class="btn-icon">📍</span>
+          Use My Location
+        </button>
+        <button class="btn-secondary" onclick="document.getElementById('manual-search').focus()">
+          Search by City
+        </button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">2,400+</span><span class="stat-label">Verified Mechanics</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">98%</span><span class="stat-label">Response Rate</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">4.8★</span><span class="stat-label">Average Rating</span></div>
+    </div>
+  </section>
+
+  <!-- SEARCH SECTION -->
+  <section class="search-section" id="search-section">
+    <div class="search-container">
+      <h2 class="section-title">Search Mechanics</h2>
+      <div class="search-bar">
+        <div class="search-field">
+          <span class="field-icon">🔍</span>
+          <input type="text" id="manual-search" placeholder="Enter city, ZIP or address..." />
+        </div>
+        <div class="search-field radius-field">
+          <span class="field-icon">📡</span>
+          <select id="radius-select">
+            <option value="5">5 km radius</option>
+            <option value="10" selected>10 km radius</option>
+            <option value="25">25 km radius</option>
+            <option value="50">50 km radius</option>
+          </select>
+        </div>
+        <div class="search-field service-field">
+          <span class="field-icon">🔧</span>
+          <select id="service-select">
+            <option value="">All Services</option>
+            <option value="oil_change">Oil Change</option>
+            <option value="brake_repair">Brake Repair</option>
+            <option value="engine_repair">Engine Repair</option>
+            <option value="tire_service">Tire Service</option>
+            <option value="transmission">Transmission</option>
+            <option value="electrical">Electrical</option>
+          </select>
+        </div>
+        <button class="btn-search" onclick="searchByAddress()">FIND NOW</button>
+      </div>
+
+      <!-- LOCATION STATUS -->
+      <div id="location-status" class="location-status hidden">
+        <div class="status-pulse"></div>
+        <span id="status-text">Locating you...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS SECTION -->
+  <section class="results-section hidden" id="results-section">
+    <div class="results-inner">
+
+      <!-- MAP -->
+      <div class="map-panel">
+        <div class="map-header">
+          <h3>Map View</h3>
+          <span id="result-count-badge" class="badge">0 found</span>
+        </div>
+        <div id="map"></div>
+      </div>
+
+      <!-- MECHANIC LIST -->
+      <div class="list-panel">
+        <div class="list-header">
+          <h3>Nearby Mechanics</h3>
+          <div class="sort-controls">
+            <span>Sort:</span>
+            <button class="sort-btn active" onclick="sortResults('distance')">Distance</button>
+            <button class="sort-btn" onclick="sortResults('rating')">Rating</button>
+            <button class="sort-btn" onclick="sortResults('price')">Price</button>
+          </div>
+        </div>
+        <div id="mechanics-list" class="mechanics-list">
+          <!-- cards injected by JS -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="hiw-inner">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-icon">📍</div>
+          <h4>Share Location</h4>
+          <p>Allow GPS access or enter your address manually to start the search.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-icon">🔎</div>
+          <h4>Browse Results</h4>
+          <p>View verified mechanics sorted by distance, rating, or price.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-icon">📞</div>
+          <h4>Connect Directly</h4>
+          <p>Call or get directions to your chosen mechanic instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <div class="contact-inner">
+      <h2 class="section-title">List Your Shop</h2>
+      <p>Are you a mechanic? Get discovered by thousands of drivers near you.</p>
+      <form class="contact-form" onsubmit="submitContact(event)">
+        <div class="form-row">
+          <input type="text" placeholder="Shop Name" required />
+          <input type="text" placeholder="Your Name" required />
+        </div>
+        <div class="form-row">
+          <input type="email" placeholder="Email Address" required />
+          <input type="tel" placeholder="Phone Number" required />
+        </div>
+        <input type="text" placeholder="Shop Address" required />
+        <textarea placeholder="Services Offered (e.g. Oil Change, Brakes, Engine)" rows="3"></textarea>
+        <button type="submit" class="btn-primary btn-form-submit">Submit Your Shop</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-icon">⚙</span> Wrench<span class="accent">Near</span>
+      </div>
+      <p class="footer-copy">© 2025 WrenchNear. Connecting drivers with trusted mechanics.</p>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MECHANIC DETAIL MODAL -->
+  <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay hidden" id="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-gear">⚙</div>
+      <p>Finding mechanics near you...</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
